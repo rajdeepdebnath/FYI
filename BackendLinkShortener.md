@@ -34,7 +34,17 @@ This document describes details about Backend of a Link Shortener project
 6. Communication flow: request will be routed to proper controller. Controller will do input validation and invoke proper service method. Service will fetch data by repository method and carry on required business logic work and return the result. Repository will talk to Database to fetch data and return result to Service method.
 7. Token controller: User will submit Username and Password via post method to obtain Token. Token will be created with expired time set.
 8. UrlShorten controller: Valid token is required to access UrlShorten controller endpoint. 
-9. UrlShorten service: The UrlShorten service will validate all the business logic validations like 1. If same user is requesting for same url more than once, the existing converted url will be returned, 2. If two different users are requesting for url shortening for same url, two different shortened url will be returned. The UrlShorten create method will 
+9. UrlShorten service: 
+  a. The UrlShorten service will validate all the business logic validations like 1. If same user is requesting for same url more than once, the existing converted url will be returned, 2. If two different users are requesting for url shortening for same url, two different shortened url will be returned. 
+  b. The UrlShorten create method will generate an alphanumeric 7 digit code and check in database if the code does not exist. The original url will be stored against this code. The code will be appended to our shorten url string with a leading front slash. The resulting string will be returned to the user.
+10. Url controller: Upon receiving the code, the Url controller will fetch the original url from database by Url Service and repository. And the return the original url with http status code '301' - permanent redirection. This request will be stroed in the database with time stamp for reporting purpose.
+
+### Non functional requirement
+1. Performance: As per requirement, daily throughput will be at 1000 user with 10 request max, 10000 requests per day. Azure Web app or AWS Elastic Beanstock plan can take care of this. With normal web server setup any request should not take more than 300 ms. Asynchronous programming model requires to be followed.
+2. Availability: Azure Web app or AWS Elastic Beanstock plan can take care of this.
+3. Scalability: Not a concern as we can expect uniform load. But in case sudden increase of load, scale up Azure or AWS plane will take care of this.
+4. Code maintainability: To ensure high coding standard linters or code analyzer requred to be used. Coding guideline needs to be defined and followed. Sonar qube quality check requires to be done. Unit test code coverage should be around 90%.
+5. Logging: Technical exception requires to be logged with stacktrace and input data. Business exception also requires to be logged.  Logging requires to be set at warning level but can be changed from environment variable, else logging may overwhelm the storage. 
 
 
 
