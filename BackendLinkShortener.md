@@ -25,6 +25,20 @@ This document describes details about Backend of a Link Shortener project
 
 
 ## Coding specification
+### Term explain
+1. 'Internal user' means who wants to use our url shorten service
+2. 'Social media user' means who will click on shortened url.
+
+### Flow
+1. Internal user will call our Token api by providing username and password by POST REST Http request to receive new token.
+2. Internal user will call our Url shorten api by providing the tokan as Authorization Http header and url as POST body. Content type shuld be text/plain.
+3. Url shroten and Report Api will be preceeded by a middleware which will validate the token.
+4. Our system will receive the Url shorten request and check for User and existing url validation and perform the shortening if validation passed.
+5. Afterthat result will be returned with Content type text/plain with Http status code 200. In case of any error Http status code 500 should be returned. In case of mal formed url, like not having http or https, error description should be returned with status code 400.
+6. Internal user will call our report api with valid token and parameter as Get request. Report data will be returned as json body with content type appliation/json.
+7. External user will click on the shortened link. The Http request will hit our web server. Express router should redirect any url of structure shortened to our Url api/controller. 
+8. Url controller will return original url with Http status code 301 - permanent redirection.
+
 ### Application Architecture
 1. 3 Tier: Controller, Service and Repository
 2. Controllers: Token, UrlShorten, Url, Reporting
@@ -33,12 +47,13 @@ This document describes details about Backend of a Link Shortener project
 5. Operations: CRUD as applicable mapped to HTTP Verbs (Get, Post, Put, Delete)
 6. Communication flow: request will be routed to proper controller. Controller will do input validation and invoke proper service method. Service will fetch data by repository method and carry on required business logic work and return the result. Repository will talk to Database to fetch data and return result to Service method.
 7. Token controller: User will submit Username and Password via post method to obtain Token. Token will be created with expired time set.
-8. UrlShorten controller: Valid token is required to access UrlShorten controller endpoint. 
+8. UrlShorten controller: Valid token is required to access UrlShorten controller endpoint. Perform url format validation, like must have http or https etc.
 9. UrlShorten service: 
   a. The UrlShorten service will validate all the business logic validations like 1. If same user is requesting for same url more than once, the existing converted url will be returned, 2. If two different users are requesting for url shortening for same url, two different shortened url will be returned. 
   b. The UrlShorten create method will generate an alphanumeric 7 digit code and check in database if the code does not exist. The original url will be stored against this code. The code will be appended to our shorten url string with a leading front slash. The resulting string will be returned to the user.
 10. Url controller: Upon receiving the code, the Url controller will fetch the original url from database by Url Service and repository. And the return the original url with http status code '301' - permanent redirection. This request will be stroed in the database with time stamp for reporting purpose.
 11. Url repository: To increase performance, cache the data for configured duration in memory redis cache by code.
+12. Report Cotroller: Will only expose Get method.
 
 ### Non functional requirement
 1. Performance: As per requirement, daily throughput will be max 100,000 read requests and 10000 create requests per day. Azure Web app or AWS Elastic Beanstock plan can take care of this. With normal web server setup any request should not take more than 300 ms. Asynchronous programming model requires to be followed.
@@ -54,7 +69,10 @@ This document describes details about Backend of a Link Shortener project
 ## Project management
 1. Tracking tool: Jira/Asana/Trello (i prefer Asana or Trello for simple project)
 2. Environment: Dev, QA, Staging, Production
-3. Procurement: AWS or Azure subscription, Development machine, monitors and other required accessories
+3. Procurement: 
+  a. AWS or Azure subscription, 
+  b. Development machine, monitors and other required accessories
+  c. Buy shortend domain lin.ks
 4. Sprint duration: 1 week
 5. Sprint flow: 
   1. Day 1 first-half: Planning and estimation, 
