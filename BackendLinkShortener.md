@@ -47,6 +47,7 @@ This document describes details about Backend of a Link Shortener project
 4. Code maintainability: To ensure high coding standard linters or code analyzer requred to be used. Coding guideline needs to be defined and followed. Sonar qube quality check requires to be done. Unit test code coverage should be around 90%.
 5. Logging: Technical exception requires to be logged with stacktrace and input data. Business exception also requires to be logged.  Logging requires to be set at warning level but can be changed from environment variable, else logging may overwhelm the storage. 
 6. Caching: To increase performance, cache the data for configured duration in memory redis cache.
+7. QA: Testing required to be done in all major browser and device combinations. Testing service provider like CrossBrowserTesting, SauceLab can be used.
 
 
 
