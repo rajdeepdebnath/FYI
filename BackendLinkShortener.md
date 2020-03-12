@@ -55,6 +55,57 @@ This document describes details about Backend of a Link Shortener project
 11. Url repository: To increase performance, cache the data for configured duration in memory redis cache by code.
 12. Report Cotroller: Will only expose Get method.
 
+### Database schema
+1. Table 1: Url
+  1. UrlId: int, primary key
+  2. ShortenId: varchar(7) 
+  3. Original Url: varchar(2048)
+  4. UserId: int, foreign key to user table
+  5. CreatedOn: datetime
+  6. IsActive: boolean
+  
+ 2. Table 2: Reporting
+  1. Id: int
+  2. UrlId: int, foreign key to Url table
+  3. Click: smallint
+  4. VisitorData: varchar(100) like user agent, device type etc.
+  5. CreatedOn: datetime
+  
+ 3. Table 3: User
+  1. Id: int, primary key
+  2. username: varchar(20)
+  3. passwordhash: varchar(40)
+  4. IsActive: boolean
+
+### Data capacity model
+##### Url table
+1. As per requirement, max url shorten request will be 10000 per day.
+2. column wise:
+  1. UrlId = 4 byte (32 bit)
+  2. ShortenId = 7 byte
+  3. Original Url = 200 byte, on an average mostly url will be within 200 characters
+  4. UserId = 4 byte
+  5. CreatedOn = 8 bytes
+  6. IsActive = 1 byte
+3. Total = 224 byte for single url.
+4. @ 10000/day url => 224 * 10000 = 2240 kb / day
+5. Monthly => 2240 * 30 = 67200 kb = 6.72 Mb
+6. Yearly => 6.72 * 12 => 134.4 Mb
+
+##### Reporting table
+1. As per requirement, max 100,000 visitors clicks per day.
+2. column wise:
+  1. Id = 4 byte (32 bit)
+  2. UrlId = 4 byte
+  3. Click = 4 byte
+  4. UserId = 4 byte
+  5. VisitorData = 100 bytes
+  6. CreatedOn = 8 bytes
+3. Total = 124 byte for single url.
+4. @ 10000/day url => 124 * 100,000 = 12.4 Mb / day
+5. Monthly => 12.4 * 30 = 372 Mb
+6. Yearly => 372 * 12 => 4.5 GB
+
 ### Non functional requirement
 1. Performance: As per requirement, daily throughput will be max 100,000 read requests and 10000 create requests per day. Azure Web app or AWS Elastic Beanstock plan can take care of this. With normal web server setup any request should not take more than 300 ms. Asynchronous programming model requires to be followed.
 2. Availability: Azure Web app or AWS Elastic Beanstock plan can take care of this.
