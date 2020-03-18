@@ -22,7 +22,7 @@ This document describes details about Backend of a Link Shortener project
 7. Hosting (Web server): AWS Elastic Beanstock (HTTPS)
 8. Code repository: Github / Bitbucket
 
-
+## Pros and Cons (feedback)
 
 ## Coding specification
 ### Term explain
@@ -131,6 +131,8 @@ This document describes details about Backend of a Link Shortener project
   3. Day 4 day start: release to QA and QA testing
   4. Day 4 first half: complete development with bug fixing
   5. Day 4 second half: release to staging and demo. Product backlog, Technical backlog grooming.
+
+## WBS in more detail:
 
 ### Estimation
 1. Resource: 1 Dev
